@@ -6,13 +6,39 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXCopyFilesBuildPhase section */
+		728C97F32E917E1600547BA7 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		72AEFB1C2E91581000ACF1D8 /* openFarmer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = openFarmer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		728C97F92E9181A400547BA7 /* Exceptions for "openFarmer" folder in "openFarmer" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 72AEFB1B2E91581000ACF1D8 /* openFarmer */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		72AEFB1E2E91581000ACF1D8 /* openFarmer */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				728C97F92E9181A400547BA7 /* Exceptions for "openFarmer" folder in "openFarmer" target */,
+			);
 			path = openFarmer;
 			sourceTree = "<group>";
 		};
@@ -55,6 +81,7 @@
 				72AEFB182E91581000ACF1D8 /* Sources */,
 				72AEFB192E91581000ACF1D8 /* Frameworks */,
 				72AEFB1A2E91581000ACF1D8 /* Resources */,
+				728C97F32E917E1600547BA7 /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
@@ -254,6 +281,8 @@
 				DEVELOPMENT_TEAM = XPD9ZA6WN4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = openFarmer/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "UDP is used to communicate with local devices";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -286,6 +315,8 @@
 				DEVELOPMENT_TEAM = XPD9ZA6WN4;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = openFarmer/Info.plist;
+				INFOPLIST_KEY_NSLocalNetworkUsageDescription = "UDP is used to communicate with local devices";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

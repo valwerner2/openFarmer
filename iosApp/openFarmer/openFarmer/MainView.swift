@@ -9,17 +9,18 @@ import SwiftUI
 import SwiftData
 
 struct MainView: View {
-
+    //@StateObject private var udpListener = UDPListener(port: 4210)
+    
     var body: some View {
         TabView{
             Tab("info", systemImage: "info") {
-                Text("infos")
+                Text("info")
             }
-            .badge("hello world")
-            Tab("lights", systemImage: "lightbulb.max"){
+            .badge("i")
+            Tab("PlantServer", systemImage: "server.rack"){
                 Text("lights")
             }
-            Tab("sensors", systemImage: "sensor"){
+            Tab("Humidifier", systemImage: "engine.emission.and.drop.2.water.wave.below"){
                 Text("sensors")
             }
             Tab("settings", systemImage: "gear"){

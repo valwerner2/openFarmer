@@ -23,15 +23,17 @@
 
 struct tm tInfo;
 
-PlantServer::GrowLight growLightTop(6, 1);
+
+PlantServer::GrowLight growLightTop(5, 1);
+/*
 PlantServer::GrowLight growLightBottom(7, 2);
 PlantServer::Output outletRight(3, PlantServer::outputModes::OUTPUT_DIGITAL, HIGH);
 PlantServer::Output outletLeft(4, PlantServer::outputModes::OUTPUT_DIGITAL, HIGH);
 PlantServer::State state;
 
-Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
+//Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-AsyncWebServer server(80);
+//AsyncWebServer server(80);
 
 void initScreen(void);
 void initWifi();
@@ -66,9 +68,11 @@ void printTime()
 
 
 IOT::DeviceBroadcaster broadcaster("plantServer");
-
+*/
 void setup()
 {
+    growLightTop.setBrightness(60);
+/*
     Serial.begin(115200);
     delay(5000);
     initScreen();
@@ -78,10 +82,12 @@ void setup()
     state.readState();
 
     initServer();
+*/
 }
 
 void loop()
 {
+/*
     reconnectWifi(5000);
     if(secondPassed())
     {
@@ -90,8 +96,9 @@ void loop()
     broadcaster.sendBroadcast(5000);
     updateGrowLights();
     updateOutlets();
+*/
 }
-
+/*
 bool isInOnTime(int onTime, int offTime)
 {
     int current = getIntTime();
@@ -113,6 +120,7 @@ void updateGrowLights()
 }
 void updateOutlets()
 {
+
     //left
     bool outletLeftOn = false;
     switch(state.getOpModeOutletLeft())
@@ -385,3 +393,4 @@ void updateTime(const uint32_t timeout) {
         delay(1);
     } while (millis() - start < timeout  && tInfo.tm_year <= (1970 - 1900));
 }
+*/

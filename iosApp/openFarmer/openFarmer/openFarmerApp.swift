@@ -10,6 +10,7 @@ import SwiftData
 
 @main
 struct openFarmerApp: App {
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
@@ -20,7 +21,7 @@ struct openFarmerApp: App {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-
+    
     var body: some Scene {
         WindowGroup {
             MainView()

@@ -1,3 +1,4 @@
 .pio
 src/wifiPassword.h
 /src/indexHtml.h
+/lib/shared/*
