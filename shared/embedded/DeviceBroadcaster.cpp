@@ -99,7 +99,7 @@ namespace IOT
         });
     }
 
-    void DeviceBroadcaster::sendBroadcast()
+    void DeviceBroadcaster::sendBroadcast(JsonDocument extraInfo)
     {
         //wifi not connected
         if (WiFi.status() != WL_CONNECTED) {return;}
@@ -110,6 +110,7 @@ namespace IOT
         message["mac"] = String(macAddr_);
         message["purpose"] = purpose_;
         message["name"] = name_;
+        if(extraInfo != null){message["info"] = extraInfo;}
 
         String jsonString;
         serializeJson(message, jsonString);
@@ -119,14 +120,14 @@ namespace IOT
         udp_.endPacket();
     }
 
-    void DeviceBroadcaster::sendBroadcast(const unsigned long msInterval)
+    void DeviceBroadcaster::sendBroadcast(const unsigned long msInterval, JsonDocument extraInfo)
     {
         unsigned long now = millis();
         if (now - lastBroadcast_ >= msInterval)
         {
             Serial.println("broadcasting");
             lastBroadcast_ = now;
-            sendBroadcast();
+            sendBroadcast(extraInfo);
         }
     }
 }

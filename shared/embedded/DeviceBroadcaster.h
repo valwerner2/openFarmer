@@ -29,10 +29,11 @@ namespace IOT
 
     public:
         DeviceBroadcaster(String purpose, String name);
+        DeviceBroadcaster(String purpose, String name);
         DeviceBroadcaster(String purpose);
         void setup(AsyncWebServer& server);
-        void sendBroadcast();
-        void sendBroadcast(const unsigned long msInterval);
+        void sendBroadcast(JsonDocument extraInfo = null);
+        void sendBroadcast(const unsigned long msInterval, JsonDocument extraInfo = null);
         void setName(String name);
     private:
         void loadName();
