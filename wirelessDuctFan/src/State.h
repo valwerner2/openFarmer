@@ -15,7 +15,7 @@ namespace DuctFan
     public:
         float currentTemp;
         float currentHum;
-        float currentSpeed;
+        int currentSpeed;
 
     private:
         MODE currentMode;
