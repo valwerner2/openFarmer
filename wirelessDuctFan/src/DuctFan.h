@@ -25,7 +25,7 @@ namespace DuctFan
     private:
         void loadSensorData();
         void setSpeed();
-        int getNewSpeed(float diff, bool down);
+        int getNewSpeed(int currentSpeed, float diff, bool down);
         void updateSpeed();
     };
 } // DuctFan

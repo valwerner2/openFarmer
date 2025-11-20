@@ -34,19 +34,28 @@ namespace DuctFan
 
     void DuctFan::setSpeed()
     {
+        state.currentSpeed = state.currentSpeed > state.max_speed_day() ? state.max_speed_day() : state.currentSpeed;
         int newSpeed = !state.currentSpeed ? 0 : map(state.currentSpeed, 1, 100, 25, 255);
         analogWrite(PWM_FAN_OUTPUT, newSpeed);
     }
 
-    int DuctFan::getNewSpeed(float diff, bool down)
+    int DuctFan::getNewSpeed(int currentSpeed, float diff, bool down)
     {
-        if ((down && diff > 0.f) || (!down && diff < 0.f))
-        {
-            diff = abs(diff);
-            const int newSpeed = static_cast<int>(diff * 10.f + pow(diff, 3));
-            return newSpeed > state.max_speed_day() ? state.max_speed_day() : newSpeed;
-        }
-        return 0;
+        static float oldDiff = diff;
+        float diffDiff = diff - oldDiff;
+        oldDiff = diff;
+
+        const bool reached = (down && diff < 0.0f) || (!down && diff > 0.0f);
+        const bool desiredDir = (diffDiff < 0.0f && down) || (diffDiff > 0.0f && !down);
+
+        Serial.printf("R%d D%d\n", reached, desiredDir);
+        if      (reached){currentSpeed -= 10;}
+        else if (desiredDir){currentSpeed --;}
+        else    {currentSpeed += 2;}
+
+        if (currentSpeed < 0) currentSpeed = 0;
+
+        return currentSpeed;
     }
 
     void DuctFan::loadSensorData()
@@ -69,16 +78,16 @@ namespace DuctFan
         switch (state.current_mode())
         {
         case MODE_HUM_DOWN:
-            state.currentSpeed = getNewSpeed(difHum, true);
+            state.currentSpeed = getNewSpeed(state.currentSpeed, difHum, true);
             break;
         case MODE_HUM_UP:
-            state.currentSpeed = getNewSpeed(difHum, false);
+            state.currentSpeed = getNewSpeed(state.currentSpeed, difHum, false);
             break;
         case MODE_TEMP_DOWN:
-            state.currentSpeed = getNewSpeed(difTemp, true);
+            state.currentSpeed = getNewSpeed(state.currentSpeed, difTemp, true);
             break;
         case MODE_TEMP_UP:
-            state.currentSpeed = getNewSpeed(difTemp, false);
+            state.currentSpeed = getNewSpeed(state.currentSpeed, difTemp, false);
             break;
         case MODE_SLAVE:
             state.currentSpeed = state.max_speed_day();
