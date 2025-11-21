@@ -100,7 +100,7 @@ namespace DuctFan
     void DuctFan::updateCurrent()
     {
         state.currentMaxSpeed = state.max_speed_day();
-        state.currentTemp = state.target_temp_day();
+        state.currentTargetTemp = state.target_temp_day();
     }
 
     void DuctFan::update()
