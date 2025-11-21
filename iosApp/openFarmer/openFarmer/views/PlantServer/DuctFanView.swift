@@ -11,8 +11,10 @@ struct DuctFanView: View {
     @StateObject private var udpListener = UDPListener()
     
     var body: some View {
-        if let ductFan = udpListener.ductFan{
-            VStack{
+        ForEach(udpListener.ductFans){ ductFan in
+            VStack(alignment: .leading){
+                Text(ductFan.name)
+                    .padding(.bottom, 10)
                 HStack(alignment: .top){
                     Label("Temperature" ,systemImage: "thermometer.medium")
                     Spacer()

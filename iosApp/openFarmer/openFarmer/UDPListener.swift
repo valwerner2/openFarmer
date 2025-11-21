@@ -9,12 +9,14 @@ import Network
 import Foundation
 internal import Combine
 
-struct DuctFan: Codable {
+struct DuctFan: Codable, Identifiable{
     let ip: String
     let mac: String
     let purpose: String
     let name: String
     let info: DuctFanInfo
+    
+    var id: String { mac }
     
     struct DuctFanInfo: Codable {
         let currentTemp: Double
@@ -56,10 +58,9 @@ class UDPListener: ObservableObject {
     private var connection: NWConnection?
     
     // Add @Published properties to conform to ObservableObject
-    @Published var receivedMessages: [String] = []
     @Published var isListening = false
     @Published var lastMessage: String = ""
-    @Published var ductFan: DuctFan?
+    @Published var ductFans: [DuctFan] = []
     
     func startListening() {
         do {
@@ -136,8 +137,9 @@ class UDPListener: ObservableObject {
                     // Update published properties on main thread
                     DispatchQueue.main.async {
                         self.lastMessage = message
-                        self.receivedMessages.append(message)
-                        self.ductFan = convertJSONToDuctFan(jsonString: message)
+                        if let newFan = convertJSONToDuctFan(jsonString: message){
+                            self.ductFans.append(newFan)
+                        }
                     }
                 } else {
                     print("Received \(data.count) bytes of data")
