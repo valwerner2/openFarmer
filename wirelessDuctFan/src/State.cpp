@@ -28,4 +28,27 @@ namespace DuctFan
 
         preferences.end();
     }
+    JsonDocument State::asJson()
+    {
+        JsonDocument jsonDoc;
+
+        jsonDoc["currentTemp"] = currentTemp;
+        jsonDoc["currentHum"] = currentHum;
+        jsonDoc["currentSpeed"] = currentSpeed;
+        jsonDoc["currentTargetTemp"] = currentTargetTemp;
+        jsonDoc["currentTargetHum"] = currentTargetHum;
+        jsonDoc["currentMode"] = current_mode();
+        jsonDoc["targetTempDay"] = target_temp_day();
+        jsonDoc["targetHumDay"] = target_hum_day();
+        jsonDoc["tagetTempNight"] = target_temp_night();
+        jsonDoc["targetHumNight"] = target_hum_night();
+        jsonDoc["startNightTime"] = start_night_time();
+        jsonDoc["startDayTime"] = start_day_time();
+        jsonDoc["maxSpeedDay"] = max_speed_day();
+        jsonDoc["maxSpeedNight"] = max_speed_night();
+
+        return jsonDoc;
+    }
+
+
 } // DuctFan

@@ -1,22 +1,17 @@
 #include <Arduino.h>
-//#include <WiFi.h>
-//#include <AsyncTCP.h>
-//#include <ESPAsyncWebServer.h>
+#include <WiFi.h>
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 
-
-//#include "DeviceBroadcaster.h"
+#include "DeviceBroadcaster.h"
 #include "DuctFan.h"
-//#include "wifiPassword.h"
+#include "wifiPassword.h"
 
-
-
-
-//IOT::DeviceBroadcaster broadcaster("DuctFan");
-//AsyncWebServer server(80);
+IOT::DeviceBroadcaster broadcaster("ductFan", "DuctFan");
+AsyncWebServer server(80);
 
 DuctFan::DuctFan ductFan;
 
-/*
 void initWifi()
 {
     Serial.print("Connecting to WiFi");
@@ -31,21 +26,24 @@ void initWifi()
     }
     Serial.println(" Connected!");
     Serial.println(WiFi.localIP());
-}*/
+}
 
 void setup() {
     Serial.begin(115200);
     delay(1000);
+    initWifi();
 
-    ductFan.init();
+    ductFan.init(server);
 
     ductFan.state.set_current_mode(DuctFan::MODE_TEMP_DOWN);
     ductFan.state.set_max_speed_day(100);
     ductFan.state.set_target_temp_day(24.f);
-    //broadcaster.setup(server);
+    broadcaster.setup(server);
+
+    server.begin();
 }
 
 void loop() {
     ductFan.update();
-    delay(1000);
+    broadcaster.sendBroadcast(5000, ductFan.state.asJson());
 }

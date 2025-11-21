@@ -5,6 +5,7 @@
 #ifndef WIRELESSDUCTFAN_STATE_H
 #define WIRELESSDUCTFAN_STATE_H
 #include <Preferences.h>
+#include <ArduinoJson.h>
 
 namespace DuctFan
 {
@@ -136,6 +137,7 @@ namespace DuctFan
             preferences.end();
         }
 
+        JsonDocument asJson();
         State();
     };
 } // DuctFan
