@@ -143,7 +143,7 @@ namespace DuctFan
     }
     void DuctFan::updateCurrent(int currentTime)
     {
-        if (currentTime > state.start_night_time() || currentTime < state.start_day_time())
+        if (!state.isDayTime)
         {
             Serial.println("NIGHT TIME");
             state.currentMaxSpeed = state.max_speed_night();
@@ -167,6 +167,8 @@ namespace DuctFan
 
         if (millis() - lastUpdate < msInterval) return;
         lastUpdate = millis();
+
+        state.isDayTime = !(currentTime > state.start_night_time() || currentTime < state.start_day_time());
 
         updateCurrent(currentTime);
         loadSensorData();

@@ -14,13 +14,14 @@ namespace DuctFan
     class State
     {
     public:
-        float currentTemp;
-        float currentHum;
-        int currentSpeed;
+        float currentTemp = 0;
+        float currentHum = 0;
+        int currentSpeed = 0;
 
-        float currentTargetTemp;
-        float currentTargetHum;
-        int currentMaxSpeed;
+        float currentTargetTemp = 0;
+        float currentTargetHum = 0;
+        int currentMaxSpeed = 0;
+        bool isDayTime = true;
 
     private:
         MODE currentMode = MODE_SLAVE;
