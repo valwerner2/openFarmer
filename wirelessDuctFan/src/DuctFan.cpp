@@ -34,7 +34,7 @@ namespace DuctFan
 
     void DuctFan::setSpeed()
     {
-        state.currentSpeed = state.currentSpeed > state.max_speed_day() ? state.max_speed_day() : state.currentSpeed;
+        state.currentSpeed = state.currentSpeed > state.currentMaxSpeed ? state.currentMaxSpeed : state.currentSpeed;
         int newSpeed = !state.currentSpeed ? 0 : map(state.currentSpeed, 1, 100, 25, 255);
         analogWrite(PWM_FAN_OUTPUT, newSpeed);
     }
@@ -68,11 +68,11 @@ namespace DuctFan
     }
     void DuctFan::updateSpeed()
     {
-        const float difTemp = state.target_temp_day() == 0.f ? 0.f : state.currentTemp - state.target_temp_day();
-        const float difHum = state.target_hum_day()  == 0.f ? 0.f : state.currentHum - state.target_hum_day();
+        const float difTemp = state.currentTargetTemp == 0.f ? 0.f : state.currentTemp - state.currentTargetTemp;
+        const float difHum = state.currentTargetHum  == 0.f ? 0.f : state.currentHum - state.currentTargetHum;
 
-        Serial.printf("\nTemperature: %2.2f -> %2.2f | %2.2f \n", state.currentTemp, state.target_temp_day(), difTemp);
-        Serial.printf("Humidity   : %2.2f -> %2.2f | %2.2f \n", state.currentHum, state.target_hum_day(), difHum);
+        Serial.printf("\nTemperature: %2.2f -> %2.2f | %2.2f \n", state.currentTemp, state.currentTargetTemp, difTemp);
+        Serial.printf("Humidity   : %2.2f -> %2.2f | %2.2f \n", state.currentHum, state.currentTargetHum, difHum);
         Serial.printf("Speed: %d\n", state.currentSpeed);
 
         switch (state.current_mode())
@@ -90,16 +90,22 @@ namespace DuctFan
             state.currentSpeed = getNewSpeed(state.currentSpeed, difTemp, false);
             break;
         case MODE_SLAVE:
-            state.currentSpeed = state.max_speed_day();
+            state.currentSpeed = state.currentMaxSpeed;
             break;
         default:
             state.currentSpeed  = 0;
             break;
         }
     }
+    void DuctFan::updateCurrent()
+    {
+        state.currentMaxSpeed = state.max_speed_day();
+        state.currentTemp = state.target_temp_day();
+    }
 
     void DuctFan::update()
     {
+        updateCurrent();
         loadSensorData();
         updateSpeed();
         setSpeed();

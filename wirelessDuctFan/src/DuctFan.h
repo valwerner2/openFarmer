@@ -27,6 +27,7 @@ namespace DuctFan
         void setSpeed();
         int getNewSpeed(int currentSpeed, float diff, bool down);
         void updateSpeed();
+        void updateCurrent();
     };
 } // DuctFan
 

@@ -17,13 +17,13 @@ namespace DuctFan
         float currentHum;
         int currentSpeed;
 
+        float currentTargetTemp;
+        float currentTargetHum;
+        int currentMaxSpeed;
+
     private:
         MODE currentMode;
-
-    private:
         float targetTempDay;
-
-    private:
         float targetTempNight;
         float targetHumDay;
         float targetHumNight;
