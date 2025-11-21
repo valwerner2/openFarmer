@@ -7,6 +7,8 @@
 
 #include "Adafruit_SHT4x.h"
 #include "State.h"
+#include <AsyncTCP.h>
+#include <ESPAsyncWebServer.h>
 
 namespace DuctFan
 {
@@ -20,14 +22,16 @@ namespace DuctFan
 
     public:
         DuctFan();
-        void init();
-        void update();
+        void init(AsyncWebServer& server);
+        void update(int currentTime, unsigned long msInterval = 1000);
     private:
+        template<typename T>
+        void addServerEndpoint(AsyncWebServer& server, const String& docName, void (State::*setter)(T));
         void loadSensorData();
         void setSpeed();
         int getNewSpeed(int currentSpeed, float diff, bool down);
         void updateSpeed();
-        void updateCurrent();
+        void updateCurrent(int currentTime);
     };
 } // DuctFan
 

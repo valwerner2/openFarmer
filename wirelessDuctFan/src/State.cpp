@@ -6,19 +6,26 @@
 
 namespace DuctFan
 {
-    State::State()
+    void State::init()
     {
+        currentTemp = 0;
+        currentHum = 0;
+        currentSpeed = 0;
+        currentTargetTemp = 0;
+        currentTargetHum = 0;
+        currentMaxSpeed = 0;
+
         preferences.begin("ductFanState", true);
 
         currentMode = static_cast<MODE>(preferences.getInt("currentMode", MODE_SLAVE));
 
-        targetTempDay = preferences.getFloat("targetTempDay", 0.f);
-        targetHumDay = preferences.getFloat("targetHumDay", 0.f);
-        targetTempNight = preferences.getFloat("targetTempNight", 0.f);
-        targetHumNight = preferences.getFloat("targetHumNight", 0.f);
+        targetTempDay = preferences.getFloat("targetTempDay", 24.f);
+        targetHumDay = preferences.getFloat("targetHumDay", 40.f);
+        targetTempNight = preferences.getFloat("targetTempNight", 20.f);
+        targetHumNight = preferences.getFloat("targetHumNight", 50.f);
 
-        startNightTime = preferences.getInt("startNightTime", 0);
-        startDayTime = preferences.getInt("startDayTime", 0);
+        startNightTime = preferences.getInt("startNightTime", 2300);
+        startDayTime = preferences.getInt("startDayTime", 600);
 
         maxSpeedDay = preferences.getInt("maxSpeedDay", 100);
         maxSpeedNight = preferences.getInt("maxSpeedNight", 50);

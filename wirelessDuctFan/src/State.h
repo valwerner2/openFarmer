@@ -23,16 +23,16 @@ namespace DuctFan
         int currentMaxSpeed;
 
     private:
-        MODE currentMode;
-        float targetTempDay;
-        float targetTempNight;
-        float targetHumDay;
-        float targetHumNight;
-        int startNightTime;
-        int startDayTime;
+        MODE currentMode = MODE_SLAVE;
+        float targetTempDay = 0;
+        float targetTempNight = 0;
+        float targetHumDay = 0;
+        float targetHumNight = 0;
+        int startNightTime = 0;
+        int startDayTime = 0;
 
-        int maxSpeedDay;
-        int maxSpeedNight;
+        int maxSpeedDay = 0;
+        int maxSpeedNight = 0;
         Preferences preferences;
 
     public:
@@ -96,6 +96,7 @@ namespace DuctFan
         }
         void set_target_hum_day(const float target_hum_day)
         {
+            Serial.println("Setting humidity day");
             preferences.begin("ductFanState", false);
             targetHumDay = target_hum_day;
             preferences.putFloat("targetHumDay", targetHumDay);
@@ -138,7 +139,7 @@ namespace DuctFan
         }
 
         JsonDocument asJson();
-        State();
+        void init();
     };
 } // DuctFan
 

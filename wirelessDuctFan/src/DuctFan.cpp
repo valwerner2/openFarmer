@@ -12,8 +12,9 @@ namespace DuctFan
         sht4 = Adafruit_SHT4x();
     }
 
-    void DuctFan::init()
+    void DuctFan::init(AsyncWebServer& server)
     {
+        state.init();
         //sensor setup
         if (! sht4.begin(&Wire)) {
             Serial.println("Couldn't find SHT4x");
@@ -30,6 +31,49 @@ namespace DuctFan
 
         //pwm ouput setup
         pinMode(PWM_FAN_OUTPUT, OUTPUT);
+
+        addServerEndpoint(server, "currentMode", &State::set_current_mode);
+        addServerEndpoint(server, "targetTempDay", &State::set_target_temp_day);
+        addServerEndpoint(server, "targetTempNight", &State::set_target_temp_night);
+        addServerEndpoint(server, "targetHumDay", &State::set_target_hum_day);
+        addServerEndpoint(server, "targetHumNight", &State::set_target_hum_night);
+        addServerEndpoint(server, "startNightTime", &State::set_start_night_time);
+        addServerEndpoint(server, "startDayTime", &State::set_start_day_time);
+        addServerEndpoint(server, "maxSpeedDay", &State::set_max_speed_day);
+        addServerEndpoint(server, "maxSpeedNight", &State::set_max_speed_night);
+    }
+
+    template<typename T>
+    void DuctFan::addServerEndpoint(AsyncWebServer& server, const String& docName, void (State::*setter)(T))
+    {
+        server.on(String("/ductFan/" + docName).c_str(),
+                HTTP_PUT,
+                [](AsyncWebServerRequest *request) {/*This is required even if unused */},
+            nullptr,
+            [this, docName, setter](AsyncWebServerRequest *request, uint8_t *data, size_t len, size_t index, size_t total)
+            {
+                JsonDocument doc;
+                DeserializationError error = deserializeJson(doc, data, len);
+
+                if (error) {
+                    request->send(400, "application/json", "{\"error\":\"Invalid JSON\"}");
+                    return;
+                }
+
+                if (!doc[docName]) {
+                    request->send(400, "application/json", "{\"error\":\"Missing "+ docName + " key in JSON\"}");
+                    return;
+                }
+
+                Serial.printf("Rec to set %s with value:%s", docName.c_str(), doc[docName].as<String>().c_str());
+
+
+                T value = doc[docName].as<T>();
+                (&(this->state)->*setter)(value);
+
+                request->send(200, "application/json", "{\"status\":\""+ docName + " updated\"}");
+            }
+        );
     }
 
     void DuctFan::setSpeed()
@@ -97,15 +141,34 @@ namespace DuctFan
             break;
         }
     }
-    void DuctFan::updateCurrent()
+    void DuctFan::updateCurrent(int currentTime)
     {
-        state.currentMaxSpeed = state.max_speed_day();
-        state.currentTargetTemp = state.target_temp_day();
+        if (currentTime > state.start_night_time() || currentTime < state.start_day_time())
+        {
+            Serial.println("NIGHT TIME");
+            state.currentMaxSpeed = state.max_speed_night();
+            state.currentTargetTemp = state.target_temp_night();
+            state.currentTargetHum = state.target_hum_night();
+        }
+        else
+        {
+            Serial.println("DAY TIME");
+            state.currentMaxSpeed = state.max_speed_day();
+            state.currentTargetTemp = state.target_temp_day();
+            state.currentTargetHum = state.target_hum_day();
+        }
+
+
     }
 
-    void DuctFan::update()
+    void DuctFan::update(int currentTime, const unsigned long msInterval)
     {
-        updateCurrent();
+        static unsigned long lastUpdate = millis();
+
+        if (millis() - lastUpdate < msInterval) return;
+        lastUpdate = millis();
+
+        updateCurrent(currentTime);
         loadSensorData();
         updateSpeed();
         setSpeed();
