@@ -169,6 +169,7 @@ namespace DuctFan
         lastUpdate = millis();
 
         state.isDayTime = !(currentTime > state.start_night_time() || currentTime < state.start_day_time());
+        Serial.println(currentTime);
 
         updateCurrent(currentTime);
         loadSensorData();

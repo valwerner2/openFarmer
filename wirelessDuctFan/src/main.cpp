@@ -70,6 +70,7 @@ void setup() {
 }
 
 void loop() {
+    updateTime(5000);
     ductFan.update(getIntTime());
     broadcaster.sendBroadcast(5000, ductFan.state.asJson());
 }
