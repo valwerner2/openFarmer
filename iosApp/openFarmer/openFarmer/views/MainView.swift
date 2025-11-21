@@ -15,7 +15,7 @@ struct MainView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             Tab("Info", systemImage: "info", value: 0) {
-                Text("Info tab")
+                Label("Calendar", systemImage: "calendar")
             }
             .badge("i")
             

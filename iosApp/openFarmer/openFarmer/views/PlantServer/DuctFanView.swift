@@ -1,0 +1,122 @@
+//
+//  DuctFanView.swift
+//  openFarmer
+//
+//  Created by Valentin Werner on 21.11.25.
+//
+
+import SwiftUI
+
+struct DuctFanView: View {
+    @StateObject private var udpListener = UDPListener()
+    
+    var body: some View {
+        if let ductFan = udpListener.ductFan{
+            VStack{
+                HStack(alignment: .top){
+                    Label("Temperature" ,systemImage: "thermometer.medium")
+                    Spacer()
+                    VStack {
+                        HStack {
+                            Label("Current" ,systemImage: "play")
+                            Spacer ()
+                            Text(String(format: "%.02f", ductFan.info.currentTemp))
+                        }.padding(.bottom, 4)
+                        
+                        HStack {
+                            Label("Target" ,systemImage: "target")
+                            Spacer ()
+                            Text(String(format: "%.02f", ductFan.info.currentTargetTemp))
+                        }.padding(.bottom, 4)
+                        
+                        if(!ductFan.info.isDayTime)
+                        {
+                            HStack {
+                                Label("Day" ,systemImage: "sun.max")
+                                Spacer ()
+                                Text(String(format: "%.02f", ductFan.info.targetTempDay))
+                            }.padding(.bottom, 4)
+                        }else{
+                            HStack {
+                                Label("Night" ,systemImage: "moon.zzz")
+                                Spacer ()
+                                Text(String(format: "%.02f", ductFan.info.targetTempNight))
+                            }.padding(.bottom, 4)
+                        }
+                    }
+                    .frame(width: 187, alignment: .topLeading)
+                }.padding(.bottom, 10)
+                
+                HStack(alignment: .top){
+                    Label("Humidity" ,systemImage: "humidity")
+                    Spacer()
+                    VStack {
+                        HStack {
+                            Label("Current" ,systemImage: "play")
+                            Spacer ()
+                            Text(String(format: "%.02f", ductFan.info.currentHum))
+                        }.padding(.bottom, 4)
+                        
+                        HStack {
+                            Label("Target" ,systemImage: "target")
+                            Spacer ()
+                            Text(String(format: "%.02f", ductFan.info.currentTargetHum))
+                        }.padding(.bottom, 4)
+                        
+                        if(!ductFan.info.isDayTime)
+                        {
+                            HStack {
+                                Label("Day" ,systemImage: "sun.max")
+                                Spacer ()
+                                Text(String(format: "%.02f", ductFan.info.targetHumDay))
+                            }.padding(.bottom, 4)
+                        }else{
+                            HStack {
+                                Label("Night" ,systemImage: "moon.zzz")
+                                Spacer ()
+                                Text(String(format: "%.02f", ductFan.info.targetHumNight))
+                            }.padding(.bottom, 4)
+                        }
+                    }.frame(width: 187, alignment: .topLeading)
+                }.padding(.bottom, 10)
+                
+                HStack{
+                    Label("Speed" ,systemImage: "fan")
+                    Spacer()
+                    
+                    VStack{
+                        HStack{
+                            Text(String(format: "%d", ductFan.info.currentSpeed))
+                            Text("/")
+                            Text(String(format: "%d",ductFan.info.isDayTime ? ductFan.info.maxSpeedDay : ductFan.info.maxSpeedNight))
+                        }
+                        if(!ductFan.info.isDayTime)
+                        {
+                            HStack {
+                                Label("Max Day" ,systemImage: "sun.max")
+                                Spacer ()
+                                Text(String(format: "%d", ductFan.info.maxSpeedDay))
+                            }.padding(.bottom, 4)
+                        }else{
+                            HStack {
+                                Label("Max Night" ,systemImage: "moon.zzz")
+                                Spacer ()
+                                Text(String(format: "%d", ductFan.info.maxSpeedNight))
+                            }.padding(.bottom, 4)
+                        }
+                    }.frame(width: 187, alignment: .topLeading)
+                }.padding(.bottom, 10)
+            }
+        }
+        VStack {
+            Text("Listening: \(udpListener.isListening ? "Yes" : "No")")
+            Text("Last message: \(udpListener.lastMessage)")
+        }
+        .onAppear {
+            udpListener.startListening()
+        }
+        .onDisappear {
+            udpListener.stopListening()
+        }
+    }
+}

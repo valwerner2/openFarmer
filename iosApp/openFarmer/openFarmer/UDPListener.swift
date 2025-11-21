@@ -4,187 +4,161 @@
 //
 //  Created by Valentin Werner on 04.10.25.
 //
-/*
-import Foundation
-import Network
-import Combine
 
-// MARK: - Device Model
-struct DeviceModel: Identifiable, Decodable {
-    let id = UUID()
-    let name: String
+import Network
+import Foundation
+internal import Combine
+
+struct DuctFan: Codable {
     let ip: String
     let mac: String
     let purpose: String
-    var showInDashboard: Bool = false
-
-    enum CodingKeys: String, CodingKey {
-        case name, ip, mac, purpose
+    let name: String
+    let info: DuctFanInfo
+    
+    struct DuctFanInfo: Codable {
+        let currentTemp: Double
+        let currentHum: Double
+        let currentSpeed: Int
+        let currentTargetTemp: Double
+        let currentTargetHum: Double
+        let currentMode: Int
+        let targetTempDay: Double
+        let targetTempNight: Double
+        let targetHumDay: Double
+        let targetHumNight: Double
+        let startNightTime: Int
+        let startDayTime: Int
+        let maxSpeedDay: Int
+        let maxSpeedNight: Int
+        let isDayTime: Bool
     }
 }
 
-@MainActor
-final class UDPListener: ObservableObject {
-    @Published var devices: [DeviceModel] = []
-    private var listener: NWListener?
-    private let port: NWEndpoint.Port
-    private var currentConnection: NWConnection?
-    
-    init(port: UInt16) {
-        self.port = NWEndpoint.Port(rawValue: port)!
-        setupListener()
+func convertJSONToDuctFan(jsonString: String) -> DuctFan? {
+    guard let jsonData = jsonString.data(using: .utf8) else {
+        print("Failed to convert string to data")
+        return nil
     }
     
-    private func setupListener() {
+    do {
+        let decoder = JSONDecoder()
+        let ductFan = try decoder.decode(DuctFan.self, from: jsonData)
+        return ductFan
+    } catch {
+        print("Error decoding JSON: \(error)")
+        return nil
+    }
+}
+
+class UDPListener: ObservableObject {
+    private var listener: NWListener?
+    private var connection: NWConnection?
+    
+    // Add @Published properties to conform to ObservableObject
+    @Published var receivedMessages: [String] = []
+    @Published var isListening = false
+    @Published var lastMessage: String = ""
+    @Published var ductFan: DuctFan?
+    
+    func startListening() {
         do {
-            let params = NWParameters.udp
-            params.allowFastOpen = true
-            params.allowLocalEndpointReuse = true
-            params.prohibitExpensivePaths = false
-            params.requiredInterfaceType = .wifi
+            // Create UDP listener on port 4210
+            let parameters = NWParameters.udp
+            parameters.requiredLocalEndpoint = NWEndpoint.hostPort(
+                host: .ipv4(.any),
+                port: 4210
+            )
             
-            listener = try NWListener(using: params, on: port)
-            setupStateHandler()
-            setupConnectionHandler()
+            listener = try NWListener(using: parameters)
             
-            print("🚀 Starting UDP listener on port \(port)")
+            listener?.stateUpdateHandler = { [weak self] state in
+                switch state {
+                case .ready:
+                    print("UDP Listener is ready on port 4210")
+                    DispatchQueue.main.async {
+                        self?.isListening = true
+                    }
+                case .failed(let error):
+                    print("Listener failed with error: \(error)")
+                    DispatchQueue.main.async {
+                        self?.isListening = false
+                    }
+                case .cancelled:
+                    print("Listener cancelled")
+                    DispatchQueue.main.async {
+                        self?.isListening = false
+                    }
+                default:
+                    break
+                }
+            }
+            
+            listener?.newConnectionHandler = { [weak self] newConnection in
+                self?.setupConnection(newConnection)
+            }
+            
             listener?.start(queue: .main)
             
         } catch {
-            print("❌ Failed to create listener:", error)
+            print("Failed to create listener: \(error)")
         }
     }
     
-    private func setupStateHandler() {
-        listener?.stateUpdateHandler = { [weak self] state in
+    private func setupConnection(_ connection: NWConnection) {
+        self.connection = connection
+        
+        connection.stateUpdateHandler = { state in
             switch state {
             case .ready:
-                print("✅ UDP Listener ready on port \(self?.port ?? 0)")
+                print("Connection ready")
+                self.receiveMessage()
             case .failed(let error):
-                print("❌ Listener failed:", error)
-                // Use Task to call MainActor method
-                Task { @MainActor in
-                    self?.restartListener()
-                }
-            case .waiting(let error):
-                print("⏳ Listener waiting:", error)
-            default:
-                break
-            }
-        }
-    }
-    
-    private func setupConnectionHandler() {
-        listener?.newConnectionHandler = { [weak self] connection in
-            print("🔗 New UDP datagram received")
-            
-            // Use Task to call MainActor method
-            Task { @MainActor in
-                self?.currentConnection?.cancel()
-                self?.currentConnection = connection
-                self?.handleConnection(connection)
-            }
-        }
-    }
-    
-    private func handleConnection(_ connection: NWConnection) {
-        connection.stateUpdateHandler = { [weak self] state in
-            switch state {
-            case .ready:
-                print("📡 Connection ready for receiving")
-                Task { @MainActor in
-                    self?.receive(on: connection)
-                }
-            case .failed(let error):
-                print("❌ Connection failed:", error)
-                connection.cancel()
-                Task { @MainActor in
-                    self?.currentConnection = nil
-                }
+                print("Connection failed: \(error)")
             case .cancelled:
-                print("🔴 Connection cancelled")
-                Task { @MainActor in
-                    self?.currentConnection = nil
-                }
+                print("Connection cancelled")
             default:
                 break
             }
         }
+        
         connection.start(queue: .main)
     }
     
-    private func receive(on connection: NWConnection) {
-        connection.receiveMessage { [weak self] (data, context, isComplete, error) in
-            // This completion handler runs on the connection's queue (main)
-            if let error = error {
-                print("⚠️ Receive error:", error)
-                connection.cancel()
-                Task { @MainActor in
-                    self?.currentConnection = nil
-                }
-                return
-            }
+    private func receiveMessage() {
+        connection?.receiveMessage { [weak self] (data, context, isComplete, error) in
+            guard let self = self else { return }
             
-            guard let data = data, !data.isEmpty else {
-                print("📭 Empty data received")
-                connection.cancel()
-                Task { @MainActor in
-                    self?.currentConnection = nil
-                }
-                return
-            }
-            
-            print("📦 Received \(data.count) bytes")
-            Task { @MainActor in
-                self?.processReceivedData(data)
-            }
-            
-            // For UDP, we cancel after receiving one message
-            connection.cancel()
-            Task { @MainActor in
-                self?.currentConnection = nil
-            }
-        }
-    }
-    
-    private func processReceivedData(_ data: Data) {
-        do {
-            let device = try JSONDecoder().decode(DeviceModel.self, from: data)
-            if !devices.contains(where: { $0.mac == device.mac }) {
-                devices.append(device)
-                print("✅ Added device: \(device.name) at \(device.ip)")
-            }
-        } catch {
-            print("⚠️ Failed to decode DeviceModel:", error)
-            if let text = String(data: data, encoding: .utf8) {
-                print("Raw data:", text)
-            }
-        }
-    }
-    
-    private func restartListener() {
-        print("🔄 Restarting listener...")
-        currentConnection?.cancel()
-        currentConnection = nil
-        listener?.cancel()
-        listener = nil
+            if let data = data, !data.isEmpty {
+                if let message = String(data: data, encoding: .utf8) {
+                    print("Received UDP message: \(message)")
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-            self.setupListener()
+                    // Update published properties on main thread
+                    DispatchQueue.main.async {
+                        self.lastMessage = message
+                        self.receivedMessages.append(message)
+                        self.ductFan = convertJSONToDuctFan(jsonString: message)
+                    }
+                } else {
+                    print("Received \(data.count) bytes of data")
+                }
+            }
+            
+            if let error = error {
+                print("Receive error: \(error)")
+                return
+            }
+            
+            // Continue listening for next message
+            self.receiveMessage()
         }
     }
     
     func stopListening() {
-        currentConnection?.cancel()
-        currentConnection = nil
         listener?.cancel()
-        listener = nil
-    }
-    
-    deinit {
-        Task{@MainActor in
-            stopListening()
+        connection?.cancel()
+        DispatchQueue.main.async {
+            self.isListening = false
         }
     }
 }
-*/
