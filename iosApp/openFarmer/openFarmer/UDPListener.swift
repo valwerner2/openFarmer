@@ -38,11 +38,12 @@ struct DuctFan: Codable, Identifiable{
 }
 
 func convertJSONToDuctFan(jsonString: String) -> DuctFan? {
+    print("convertJSONToDuctFan")
+    
     guard let jsonData = jsonString.data(using: .utf8) else {
         print("Failed to convert string to data")
         return nil
     }
-    
     do {
         let decoder = JSONDecoder()
         let ductFan = try decoder.decode(DuctFan.self, from: jsonData)
@@ -53,114 +54,94 @@ func convertJSONToDuctFan(jsonString: String) -> DuctFan? {
     }
 }
 
+import Foundation
+import Network
+
+import Foundation
+import Network
+
+import Foundation
+import Network
+
 class UDPListener: ObservableObject {
-    private var listener: NWListener?
-    private var connection: NWConnection?
-    
-    // Add @Published properties to conform to ObservableObject
     @Published var isListening = false
     @Published var lastMessage: String = ""
-    @Published var ductFans: [DuctFan] = []
+    
+    @Published var ductFans: [String : DuctFan] = [:]
+    
+    private var socketFD: Int32 = -1
+    private var queue: DispatchQueue?
+    
     
     func startListening() {
-        do {
-            // Create UDP listener on port 4210
-            let parameters = NWParameters.udp
-            parameters.requiredLocalEndpoint = NWEndpoint.hostPort(
-                host: .ipv4(.any),
-                port: 4210
-            )
-            
-            listener = try NWListener(using: parameters)
-            
-            listener?.stateUpdateHandler = { [weak self] state in
-                switch state {
-                case .ready:
-                    print("UDP Listener is ready on port 4210")
-                    DispatchQueue.main.async {
-                        self?.isListening = true
+        guard socketFD < 0 else { return }
+
+        socketFD = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP)
+        guard socketFD >= 0 else {
+            print("Failed to create socket")
+            return
+        }
+
+        // Allow address reuse
+        var reuse: Int32 = 1
+        setsockopt(socketFD, SOL_SOCKET, SO_REUSEADDR, &reuse, socklen_t(MemoryLayout<Int32>.size))
+
+        // Bind to port 4210
+        var addr = sockaddr_in()
+        addr.sin_family = sa_family_t(AF_INET)
+        addr.sin_port = in_port_t(4210).bigEndian
+        addr.sin_addr = in_addr(s_addr: INADDR_ANY.bigEndian)
+
+        let bindResult = withUnsafePointer(to: &addr) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                bind(socketFD, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
+            }
+        }
+
+        guard bindResult == 0 else {
+            perror("bind failed")
+            close(socketFD)
+            socketFD = -1
+            return
+        }
+
+        print("UDP socket bound to 0.0.0.0:4210")
+        queue = DispatchQueue(label: "udp-listener")
+        isListening = true
+
+        queue?.async { [weak self] in
+            self?.receiveLoop()
+        }
+    }
+
+    private func receiveLoop() {
+        var buffer = [UInt8](repeating: 0, count: 2048)
+
+        while isListening {
+            let bytesRead = recv(socketFD, &buffer, buffer.count, 0)
+
+            if bytesRead > 0 {
+                let data = Data(buffer[0..<bytesRead])
+                let message = String(data: data, encoding: .utf8) ?? "<binary>"
+
+                DispatchQueue.main.async {
+                    self.lastMessage = message
+                    if let newFan = convertJSONToDuctFan(jsonString: message){
+                        self.ductFans[newFan.mac] = newFan
                     }
-                case .failed(let error):
-                    print("Listener failed with error: \(error)")
-                    DispatchQueue.main.async {
-                        self?.isListening = false
-                    }
-                case .cancelled:
-                    print("Listener cancelled")
-                    DispatchQueue.main.async {
-                        self?.isListening = false
-                    }
-                default:
-                    break
                 }
-            }
-            
-            listener?.newConnectionHandler = { [weak self] newConnection in
-                self?.setupConnection(newConnection)
-            }
-            
-            listener?.start(queue: .main)
-            
-        } catch {
-            print("Failed to create listener: \(error)")
-        }
-    }
-    
-    private func setupConnection(_ connection: NWConnection) {
-        self.connection = connection
-        
-        connection.stateUpdateHandler = { state in
-            switch state {
-            case .ready:
-                print("Connection ready")
-                self.receiveMessage()
-            case .failed(let error):
-                print("Connection failed: \(error)")
-            case .cancelled:
-                print("Connection cancelled")
-            default:
-                break
+
+                print("Received UDP.")
             }
         }
-        
-        connection.start(queue: .main)
     }
-    
-    private func receiveMessage() {
-        connection?.receiveMessage { [weak self] (data, context, isComplete, error) in
-            guard let self = self else { return }
-            
-            if let data = data, !data.isEmpty {
-                if let message = String(data: data, encoding: .utf8) {
-                    print("Received UDP message: \(message)")
-        
-                    // Update published properties on main thread
-                    DispatchQueue.main.async {
-                        self.lastMessage = message
-                        if let newFan = convertJSONToDuctFan(jsonString: message){
-                            self.ductFans.append(newFan)
-                        }
-                    }
-                } else {
-                    print("Received \(data.count) bytes of data")
-                }
-            }
-            
-            if let error = error {
-                print("Receive error: \(error)")
-                return
-            }
-            
-            // Continue listening for next message
-            self.receiveMessage()
-        }
-    }
-    
+
     func stopListening() {
-        listener?.cancel()
-        connection?.cancel()
-        DispatchQueue.main.async {
-            self.isListening = false
+        isListening = false
+
+        if socketFD >= 0 {
+            close(socketFD)
+            socketFD = -1
         }
     }
 }

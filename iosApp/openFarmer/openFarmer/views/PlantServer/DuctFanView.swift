@@ -10,8 +10,9 @@ import SwiftUI
 struct DuctFanView: View {
     @StateObject private var udpListener = UDPListener()
     
+    
     var body: some View {
-        ForEach(udpListener.ductFans){ ductFan in
+        ForEach(Array(udpListener.ductFans.values)){ ductFan in
             VStack(alignment: .leading){
                 Text(ductFan.name)
                     .padding(.bottom, 10)
@@ -110,14 +111,13 @@ struct DuctFanView: View {
                 }.padding(.bottom, 10)
             }
         }
-        VStack {
-            Text("Listening: \(udpListener.isListening ? "Yes" : "No")")
-            Text("Last message: \(udpListener.lastMessage)")
-        }
+        Text("")
         .onAppear {
+            print("onAppear")
             udpListener.startListening()
         }
         .onDisappear {
+            print("onDisappear")
             udpListener.stopListening()
         }
     }
