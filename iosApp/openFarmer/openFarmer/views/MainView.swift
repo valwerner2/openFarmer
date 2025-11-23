@@ -19,8 +19,8 @@ struct MainView: View {
             }
             .badge("i")
             
-            Tab("PlantServer", systemImage: "server.rack", value: 1){
-                PlantServerView()
+            Tab("DuctFans", systemImage: "fan", value: 1){
+                DuctFanView()
             }
             
             Tab("Humidifier", systemImage: "engine.emission.and.drop.2.water.wave.below", value: 2){
