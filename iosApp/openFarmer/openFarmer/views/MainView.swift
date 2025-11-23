@@ -8,9 +8,12 @@
 import SwiftUI
 import SwiftData
 
+let paddingRow = 4.0
+let paddingSection = 10.0
+
 struct MainView: View {
     //@StateObject private var udpListener = UDPListener(port: 4210)
-    @State private var selectedTab = 1
+    @State private var selectedTab = 2
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -19,15 +22,19 @@ struct MainView: View {
             }
             .badge("i")
             
-            Tab("DuctFans", systemImage: "fan", value: 1){
-                DuctFanView()
-            }
-            
-            Tab("Humidifier", systemImage: "engine.emission.and.drop.2.water.wave.below", value: 2){
+            Tab("Lights", systemImage: "lightbulb.max", value: 1){
                 Text("sensors")
             }
             
-            Tab("settings", systemImage: "gear", value: 3){
+            Tab("DuctFans", systemImage: "fan", value: 2){
+                DuctFanView()
+            }
+            
+            Tab("Humidity", systemImage: "humidity", value: 3){
+                Text("sensors")
+            }
+            
+            Tab("settings", systemImage: "gear", value: 4){
                 Text("settings")
             }
             
