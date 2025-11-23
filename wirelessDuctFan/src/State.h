@@ -22,6 +22,7 @@ namespace DuctFan
         float currentTargetHum = 0;
         int currentMaxSpeed = 0;
         bool isDayTime = true;
+        bool isLoudTime = true;
 
     private:
         MODE currentMode = MODE_SLAVE;
@@ -32,8 +33,10 @@ namespace DuctFan
         int startNightTime = 0;
         int startDayTime = 0;
 
-        int maxSpeedDay = 0;
-        int maxSpeedNight = 0;
+        int startQuietTime = 0;
+        int startLoudTime = 0;
+        int maxSpeedQuiet = 0;
+        int maxSpeedLoud = 0;
         Preferences preferences;
 
     public:
@@ -65,13 +68,21 @@ namespace DuctFan
         {
             return startDayTime;
         }
-        int max_speed_day() const
+        int start_quiet_time() const
         {
-            return maxSpeedDay;
+            return startQuietTime;
         }
-        int max_speed_night() const
+        int start_loud_time() const
         {
-            return maxSpeedNight;
+            return startLoudTime;
+        }
+        int max_speed_loud() const
+        {
+            return maxSpeedLoud;
+        }
+        int max_speed_quiet() const
+        {
+            return maxSpeedQuiet;
         }
 
         void set_current_mode(const MODE current_mode)
@@ -124,18 +135,32 @@ namespace DuctFan
             preferences.putInt("startDayTime", startDayTime);
             preferences.end();
         }
-        void set_max_speed_day(const int max_speed_day)
+        void set_start_quiet_time(const int start_quiet_time)
         {
             preferences.begin("ductFanState", false);
-            maxSpeedDay = max_speed_day;
-            preferences.putInt("maxSpeedDay", maxSpeedDay);
+            startQuietTime = start_quiet_time;
+            preferences.putInt("startQuietTime", startQuietTime);
             preferences.end();
         }
-        void set_max_speed_night(const int max_speed_night)
+        void set_start_loud_time(const int start_loud_time)
         {
             preferences.begin("ductFanState", false);
-            maxSpeedNight = max_speed_night;
-            preferences.putInt("maxSpeedNight", maxSpeedNight);
+            startLoudTime = start_loud_time;
+            preferences.putInt("startLoudTime", startLoudTime);
+            preferences.end();
+        }
+        void set_max_speed_loud(const int max_speed_loud)
+        {
+            preferences.begin("ductFanState", false);
+            maxSpeedLoud = max_speed_loud;
+            preferences.putInt("maxSpeedLoud", maxSpeedLoud);
+            preferences.end();
+        }
+        void set_max_speed_quiet(const int max_speed_quiet)
+        {
+            preferences.begin("ductFanState", false);
+            maxSpeedQuiet = max_speed_quiet;
+            preferences.putInt("maxSpeedQuiet", maxSpeedQuiet);
             preferences.end();
         }
 

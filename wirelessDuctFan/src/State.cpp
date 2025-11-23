@@ -27,8 +27,11 @@ namespace DuctFan
         startNightTime = preferences.getInt("startNightTime", 2300);
         startDayTime = preferences.getInt("startDayTime", 600);
 
-        maxSpeedDay = preferences.getInt("maxSpeedDay", 100);
-        maxSpeedNight = preferences.getInt("maxSpeedNight", 50);
+        startQuietTime = preferences.getInt("startQuietTime", 2300);
+        startLoudTime = preferences.getInt("startLoudTime", 600);
+
+        maxSpeedLoud = preferences.getInt("maxSpeedLoud", 100);
+        maxSpeedQuiet = preferences.getInt("maxSpeedQuiet", 50);
 
         currentTemp = 0.f;
         currentHum = 0.f;
@@ -52,9 +55,12 @@ namespace DuctFan
         jsonDoc["targetHumNight"] = target_hum_night();
         jsonDoc["startNightTime"] = start_night_time();
         jsonDoc["startDayTime"] = start_day_time();
-        jsonDoc["maxSpeedDay"] = max_speed_day();
-        jsonDoc["maxSpeedNight"] = max_speed_night();
+        jsonDoc["startQuietTime"] = start_quiet_time();
+        jsonDoc["startLoudTime"] = start_loud_time();
+        jsonDoc["maxSpeedLoud"] = max_speed_loud();
+        jsonDoc["maxSpeedQuiet"] = max_speed_quiet();
         jsonDoc["isDayTime"] = isDayTime;
+        jsonDoc["isLoudTime"] = isLoudTime;
 
         return jsonDoc;
     }

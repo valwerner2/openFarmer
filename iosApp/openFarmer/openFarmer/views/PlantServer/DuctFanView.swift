@@ -91,20 +91,20 @@ struct DuctFanView: View {
                         HStack{
                             Text(String(format: "%d", ductFan.info.currentSpeed))
                             Text("/")
-                            Text(String(format: "%d",ductFan.info.isDayTime ? ductFan.info.maxSpeedDay : ductFan.info.maxSpeedNight))
+                            Text(String(format: "%d",ductFan.info.isDayTime ? ductFan.info.maxSpeedLoud : ductFan.info.maxSpeedQuiet))
                         }
                         if(!ductFan.info.isDayTime)
                         {
                             HStack {
                                 Label("Max Day" ,systemImage: "sun.max")
                                 Spacer ()
-                                Text(String(format: "%d", ductFan.info.maxSpeedDay))
+                                Text(String(format: "%d", ductFan.info.maxSpeedLoud))
                             }.padding(.bottom, 4)
                         }else{
                             HStack {
                                 Label("Max Night" ,systemImage: "moon.zzz")
                                 Spacer ()
-                                Text(String(format: "%d", ductFan.info.maxSpeedNight))
+                                Text(String(format: "%d", ductFan.info.maxSpeedQuiet))
                             }.padding(.bottom, 4)
                         }
                     }.frame(width: 187, alignment: .topLeading)

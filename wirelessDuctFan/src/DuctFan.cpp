@@ -39,8 +39,10 @@ namespace DuctFan
         addServerEndpoint(server, "targetHumNight", &State::set_target_hum_night);
         addServerEndpoint(server, "startNightTime", &State::set_start_night_time);
         addServerEndpoint(server, "startDayTime", &State::set_start_day_time);
-        addServerEndpoint(server, "maxSpeedDay", &State::set_max_speed_day);
-        addServerEndpoint(server, "maxSpeedNight", &State::set_max_speed_night);
+        addServerEndpoint(server, "maxSpeedLoud", &State::set_max_speed_loud);
+        addServerEndpoint(server, "maxSpeedQuiet", &State::set_max_speed_quiet);
+        addServerEndpoint(server, "startLoudTime", &State::set_start_loud_time);
+        addServerEndpoint(server, "startQuietTime", &State::set_start_quiet_time);
     }
 
     template<typename T>
@@ -146,18 +148,17 @@ namespace DuctFan
         if (!state.isDayTime)
         {
             Serial.println("NIGHT TIME");
-            state.currentMaxSpeed = state.max_speed_night();
             state.currentTargetTemp = state.target_temp_night();
             state.currentTargetHum = state.target_hum_night();
         }
         else
         {
             Serial.println("DAY TIME");
-            state.currentMaxSpeed = state.max_speed_day();
             state.currentTargetTemp = state.target_temp_day();
             state.currentTargetHum = state.target_hum_day();
         }
 
+        state.currentMaxSpeed = !state.isLoudTime ?state.max_speed_quiet() : state.max_speed_loud();
 
     }
 
@@ -169,6 +170,8 @@ namespace DuctFan
         lastUpdate = millis();
 
         state.isDayTime = !(currentTime > state.start_night_time() || currentTime < state.start_day_time());
+        state.isLoudTime = !(currentTime > state.start_quiet_time() || currentTime < state.start_loud_time());
+
         Serial.println(currentTime);
 
         updateCurrent(currentTime);

@@ -31,9 +31,12 @@ struct DuctFan: Codable, Identifiable{
         let targetHumNight: Double
         let startNightTime: Int
         let startDayTime: Int
-        let maxSpeedDay: Int
-        let maxSpeedNight: Int
+        let startQuietTime: Int
+        let startLoudTime: Int
+        let maxSpeedLoud: Int
+        let maxSpeedQuiet: Int
         let isDayTime: Bool
+        let isLoudTime: Bool
     }
 }
 
@@ -53,12 +56,6 @@ func convertJSONToDuctFan(jsonString: String) -> DuctFan? {
         return nil
     }
 }
-
-import Foundation
-import Network
-
-import Foundation
-import Network
 
 import Foundation
 import Network
