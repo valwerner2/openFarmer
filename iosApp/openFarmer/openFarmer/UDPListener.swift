@@ -61,7 +61,6 @@ struct DuctFan: Codable, Identifiable{
 }
 
 func convertJSONToDuctFan(jsonString: String) -> DuctFan? {
-    print("convertJSONToDuctFan")
     
     guard let jsonData = jsonString.data(using: .utf8) else {
         print("Failed to convert string to data")
@@ -180,8 +179,6 @@ class UDPListener: ObservableObject {
                         self.ductFans[newFan.mac] = newFan
                     }
                 }
-
-                print("Received UDP.")
             }
         }
     }
