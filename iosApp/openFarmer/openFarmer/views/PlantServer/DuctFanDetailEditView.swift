@@ -32,6 +32,7 @@ public extension Binding {
 
 struct DuctFanDetailEditView: View {
     let ductFanCurrent: DuctFan
+    let httpClient = HTTPClient();
     
     @State var ductFanEdit: DuctFan
     
@@ -153,48 +154,55 @@ struct DuctFanDetailEditView: View {
             }
             
         }
+        .onAppear{
+            ductFanEdit = ductFanCurrent
+            self.dateStartLoud = Date(time: ductFanEdit.info.startLoudTime)
+            self.dateStartQuiet = Date(time: ductFanEdit.info.startQuietTime)
+            self.dateStartDay = Date(time: ductFanEdit.info.startDayTime)
+            self.dateStartNight = Date(time: ductFanEdit.info.startNightTime)
+        }
         .onDisappear {
             if ductFanCurrent.name != ductFanEdit.name{
-                print("name changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/deviceBroadcaster/name", key: "name", value: ductFanEdit.name)
             }
             if ductFanCurrent.info.currentMode != ductFanEdit.info.currentMode{
-                print("mode changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/currentMode", key: "currentMode", value: String(ductFanEdit.info.currentMode.rawValue))
             }
             
             if ductFanCurrent.info.targetTempDay != ductFanEdit.info.targetTempDay{
-                print("targetTempDay changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/targetTempDay", key: "targetTempDay", value: String(ductFanEdit.info.targetTempDay))
             }
             
             if ductFanCurrent.info.targetTempNight != ductFanEdit.info.targetTempNight{
-                print("targetTempNight changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/targetTempNight", key: "targetTempNight", value: String(ductFanEdit.info.targetTempNight))
             }
             
             if ductFanCurrent.info.targetHumDay != ductFanEdit.info.targetHumDay{
-                print("targetHumDay changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/targetHumDay", key: "targetHumDay", value: String(ductFanEdit.info.targetHumDay))
             }
             
             if ductFanCurrent.info.targetHumNight != ductFanEdit.info.targetHumNight{
-                print("targetHumNight changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/targetHumNight", key: "targetHumNight", value: String(ductFanEdit.info.targetHumNight))
             }
             
             if ductFanCurrent.info.maxSpeedLoud != ductFanEdit.info.maxSpeedLoud{
-                print("maxSpeedLoud changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/maxSpeedLoud", key: "maxSpeedLoud", value: String(ductFanEdit.info.maxSpeedLoud))
             }
             if ductFanCurrent.info.maxSpeedQuiet != ductFanEdit.info.maxSpeedQuiet{
-                print("maxSpeedQuiet changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/maxSpeedQuiet", key: "maxSpeedQuiet", value: String(ductFanEdit.info.maxSpeedQuiet))
             }
             
             if ductFanCurrent.info.startDayTime != dateStartDay.toTimeInt(){
-                print("startDayTime changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/startDayTime", key: "startDayTime", value: String(dateStartDay.toTimeInt()))
             }
             if ductFanCurrent.info.startNightTime != dateStartNight.toTimeInt(){
-                print("startNightTime changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/startNightTime", key: "startNightTime", value: String(dateStartNight.toTimeInt()))
             }
             if ductFanCurrent.info.startLoudTime != dateStartLoud.toTimeInt(){
-                print("startLoudTime changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/startLoudTime", key: "startLoudTime", value: String(dateStartLoud.toTimeInt()))
             }
             if ductFanCurrent.info.startQuietTime != dateStartQuiet.toTimeInt(){
-                print("startQuietTime changed")
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/startQuietTime", key: "startQuietTime", value: String(dateStartQuiet.toTimeInt()))
             }
         }
     }
