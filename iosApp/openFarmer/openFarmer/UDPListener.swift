@@ -9,34 +9,54 @@ import Network
 import Foundation
 internal import Combine
 
+enum DuctFanMode: Int, CaseIterable, Identifiable, Decodable, Encodable{
+    case humDown = 0
+    case humUp
+    case tempDown
+    case tempUp
+    case slave
+    
+    var id: Int { self.rawValue }
+    
+    var label: String {
+        switch self {
+        case .humDown: return "Humidity Down"
+        case .humUp: return "Humidity Up"
+        case .tempDown: return "Temperature Down"
+        case .tempUp: return "Temperature Up"
+        case .slave: return "Slave"
+        }
+    }
+}
+
 struct DuctFan: Codable, Identifiable{
     let ip: String
     let mac: String
     let purpose: String
-    let name: String
-    let info: DuctFanInfo
+    var name: String
+    var info: DuctFanInfo
     
     var id: String { mac }
     
     struct DuctFanInfo: Codable {
-        let currentTemp: Double
-        let currentHum: Double
-        let currentSpeed: Int
-        let currentTargetTemp: Double
-        let currentTargetHum: Double
-        let currentMode: Int
-        let targetTempDay: Double
-        let targetTempNight: Double
-        let targetHumDay: Double
-        let targetHumNight: Double
-        let startNightTime: Int
-        let startDayTime: Int
-        let startQuietTime: Int
-        let startLoudTime: Int
-        let maxSpeedLoud: Int
-        let maxSpeedQuiet: Int
-        let isDayTime: Bool
-        let isLoudTime: Bool
+        var currentTemp: Double
+        var currentHum: Double
+        var currentSpeed: Int
+        var currentTargetTemp: Double
+        var currentTargetHum: Double
+        var currentMode: DuctFanMode
+        var targetTempDay: Double
+        var targetTempNight: Double
+        var targetHumDay: Double
+        var targetHumNight: Double
+        var startNightTime: Int
+        var startDayTime: Int
+        var startQuietTime: Int
+        var startLoudTime: Int
+        var maxSpeedLoud: Int
+        var maxSpeedQuiet: Int
+        var isDayTime: Bool
+        var isLoudTime: Bool
     }
 }
 
@@ -65,6 +85,39 @@ class UDPListener: ObservableObject {
     @Published var lastMessage: String = ""
     
     @Published var ductFans: [String : DuctFan] = [:]
+    
+    /*
+    init() {
+            let exampleFan = DuctFan(
+                ip: "192.168.1.42",
+                mac: "AA:BB:CC:DD:EE:FF",
+                purpose: "Indoor climate control",
+                name: "Living Room Fan",
+                info: DuctFan.DuctFanInfo(
+                    currentTemp: 22.5,
+                    currentHum: 45.0,
+                    currentSpeed: 22,
+                    currentTargetTemp: 23.0,
+                    currentTargetHum: 50.0,
+                    currentMode: DuctFanMode.tempDown,
+                    targetTempDay: 23.0,
+                    targetTempNight: 20.0,
+                    targetHumDay: 50.0,
+                    targetHumNight: 55.0,
+                    startNightTime: 22,
+                    startDayTime: 6,
+                    startQuietTime: 20,
+                    startLoudTime: 8,
+                    maxSpeedLoud: 100,
+                    maxSpeedQuiet: 50,
+                    isDayTime: true,
+                    isLoudTime: false
+                )
+            )
+
+            self.ductFans = [exampleFan.mac: exampleFan]
+        }
+    */
     
     private var socketFD: Int32 = -1
     private var queue: DispatchQueue?

@@ -110,7 +110,7 @@ namespace DuctFan
         sht4.getEvent(&humidity, &temp);
 
         state.currentHum = humidity.relative_humidity;
-        state.currentTemp = temp.temperature;
+        state.currentTemp = temp.temperature < 2 || temp.temperature > 40 ? state.currentTemp : temp.temperature;
     }
     void DuctFan::updateSpeed()
     {
@@ -158,7 +158,7 @@ namespace DuctFan
             state.currentTargetHum = state.target_hum_day();
         }
 
-        state.currentMaxSpeed = !state.isLoudTime ?state.max_speed_quiet() : state.max_speed_loud();
+        state.currentMaxSpeed = !state.isLoudTime ? state.max_speed_quiet() : state.max_speed_loud();
 
     }
 
