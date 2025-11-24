@@ -119,9 +119,7 @@ struct DuctFanDetailView: View {
             }
         }
         .onChange(of: editMode?.wrappedValue.isEditing) { _, isEditing in
-            if isEditing == true {
-                self.ductFanCopy = ductFan
-            }
+            self.ductFanCopy = ductFan
         }
     }
 }
