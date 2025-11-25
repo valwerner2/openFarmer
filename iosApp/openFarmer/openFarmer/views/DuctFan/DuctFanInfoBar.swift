@@ -13,9 +13,23 @@ struct DuctFanInfoBar: View {
     
     var body: some View {
         HStack{
-            Label(String(format: "%.02f", ductFanCurrent.info.currentTemp) ,systemImage: "thermometer.medium")
+            Label {
+                Text(String(format: "%.02f", ductFanCurrent.info.currentTemp))
+            } icon: {
+                TemperatureIconView(
+                    current: ductFanCurrent.info.currentTemp,
+                    target: ductFanCurrent.info.currentTargetTemp
+                )
+            }
             Spacer()
-            Label(String(format: "%.02f", ductFanCurrent.info.currentHum) ,systemImage: "humidity")
+            Label {
+                Text(String(format: "%.02f", ductFanCurrent.info.currentHum))
+            } icon: {
+                HumidityIconView(
+                    current: ductFanCurrent.info.currentTemp,
+                    target: ductFanCurrent.info.currentTargetTemp
+                )
+            }
             Spacer()
             Label(String(ductFanCurrent.info.currentSpeed) ,systemImage: "fan")
             Spacer()

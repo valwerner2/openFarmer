@@ -11,6 +11,15 @@ import SwiftData
 let paddingRow = 4.0
 let paddingSection = 10.0
 
+let perfectTargetDiff = 1.0
+let mediumTargetDiff = 2.0
+
+let colorPerfect = Color.green
+let colorMediumHigh = Color.orange
+let colorExtremeHigh = Color.red
+let colorMediumLow = Color.cyan
+let colorExtremeLow = Color.blue
+
 struct MainView: View {
     //@StateObject private var udpListener = UDPListener(port: 4210)
     @State private var selectedTab = 2
