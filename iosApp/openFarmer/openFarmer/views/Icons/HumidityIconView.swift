@@ -12,16 +12,16 @@ struct HumidityIconView: View {
     let current: Double
     let target: Double
     
-    @State private var color: Color
-    @State private var level: Double
+    let color: Color
+    let level: Double
     
     init(current: Double, target: Double) {
         self.current = current
         self.target = target
         
         let calculated = colorLevelCalc(current: current, target: target)
-        _color = State(initialValue: calculated.0)
-        _level = State(initialValue: calculated.1 - 0.15)
+        color = calculated.0
+        level = calculated.1 - 0.15
     }
     
     var body: some View {

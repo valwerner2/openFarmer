@@ -11,22 +11,22 @@ struct TemperatureIconView: View {
     let current: Double
     let target: Double
     
-    @State private var color: Color
-    @State private var level: Double
+    let color: Color
+    let level: Double
     
     init(current: Double, target: Double) {
         self.current = current
         self.target = target
         
         let calculated = colorLevelCalc(current: current, target: target)
-        _color = State(initialValue: calculated.0)
-        _level = State(initialValue: calculated.1)
+        color = calculated.0
+        level = calculated.1 - 0.15
     }
     
     var body: some View {
         Image(systemName: "thermometer.high", variableValue: level)
             .symbolRenderingMode(.palette)
-            .foregroundStyle(color, .gray)
+            .foregroundStyle(.pink, color)
             .symbolVariableValueMode(.draw)
             .animation(.easeInOut(duration: 0.5), value: level)
     }

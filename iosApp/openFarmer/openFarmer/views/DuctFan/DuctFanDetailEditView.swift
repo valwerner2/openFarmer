@@ -52,7 +52,6 @@ struct DuctFanDetailEditView: View {
     
     var body: some View {
         VStack(alignment: .leading){
-            DuctFanInfoBar(ductFanCurrent: ductFanCurrent).padding(.bottom, paddingSection)
             VStack(alignment: .leading){
                 Text("Name")
                 TextField("Name", text: $ductFanEdit.name)
@@ -134,7 +133,7 @@ struct DuctFanDetailEditView: View {
                                    displayedComponents: [.hourAndMinute]
                         )
                     }
-                }.padding(.bottom, paddingSection)
+                }
             }else{
                 VStack(alignment: .leading){
                     Text("Speed")
