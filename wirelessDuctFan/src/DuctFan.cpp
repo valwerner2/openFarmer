@@ -223,8 +223,8 @@ namespace DuctFan
         if (millis() - lastUpdate < msInterval) return;
         lastUpdate = millis();
 
-        state.isDayTime = !(currentTime > state.start_night_time() || currentTime < state.start_day_time());
-        state.isLoudTime = !(currentTime > state.start_quiet_time() || currentTime < state.start_loud_time());
+        state.isDayTime = currentTime < state.start_night_time() && currentTime >= state.start_day_time();
+        state.isLoudTime = currentTime < state.start_quiet_time() && currentTime >= state.start_loud_time();
 
         state.isFadeDayTime = currentTime >= state.start_fade_time_day() && currentTime < state.start_day_time();
         state.isFadeNightTime = currentTime >= state.start_fade_time_night() && currentTime < state.start_night_time();
