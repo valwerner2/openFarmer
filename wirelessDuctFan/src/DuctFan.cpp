@@ -43,6 +43,8 @@ namespace DuctFan
         addServerEndpoint(server, "maxSpeedQuiet", &State::set_max_speed_quiet);
         addServerEndpoint(server, "startLoudTime", &State::set_start_loud_time);
         addServerEndpoint(server, "startQuietTime", &State::set_start_quiet_time);
+        addServerEndpoint(server, "startFadeTimeNight", &State::set_start_fade_time_night);
+        addServerEndpoint(server, "startFadeTimeDay", &State::set_start_fade_time_day);
     }
 
     template<typename T>
@@ -136,16 +138,66 @@ namespace DuctFan
             state.currentSpeed = getNewSpeed(state.currentSpeed, difTemp, false);
             break;
         case MODE_SLAVE:
-            state.currentSpeed = state.currentMaxSpeed;
+            state.currentSpeed = state.max_speed_loud();;
             break;
         default:
             state.currentSpeed  = 0;
             break;
         }
     }
+
+    int diffMinute(int startTime, int endTime)
+    {
+        int diffMin = (endTime / 100 * 60 + endTime % 100) - (startTime / 100 * 60 + startTime % 100);
+        if (diffMin < 0) diffMin += 24 * 60;
+        return diffMin;
+    }
+
+    float DuctFan::fadedTarget(int startTime, int endTime, float startTarget, float endTarget, int currentTime)
+    {
+        int diffMin = diffMinute(startTime, endTime);
+
+        float stepPerMinute = abs(startTarget - endTarget) / static_cast<float>(diffMin);
+
+        int minuteIntoFade = diffMinute(startTime, currentTime);
+
+        float sign = startTarget < endTarget ? 1 : -1;
+        return startTarget + sign * stepPerMinute * static_cast<float>(minuteIntoFade);
+    }
+
     void DuctFan::updateCurrent(int currentTime)
     {
-        if (!state.isDayTime)
+        if (state.isFadeDayTime)
+        {
+            Serial.println("FADE TO DAY TIME");
+            state.currentTargetTemp = fadedTarget(state.start_fade_time_day(),
+                                                state.start_day_time(),
+                                                state.target_temp_night(),
+                                                state.target_temp_day(),
+                                                currentTime);
+
+            state.currentTargetHum = fadedTarget(state.start_fade_time_day(),
+                                                state.start_day_time(),
+                                                state.target_hum_night(),
+                                                state.target_hum_day(),
+                                                currentTime);
+        }
+        else if (state.isFadeNightTime)
+        {
+            Serial.println("FADE TO NIGHT TIME");
+            state.currentTargetTemp = fadedTarget(state.start_fade_time_night(),
+                                                state.start_night_time(),
+                                                state.target_temp_day(),
+                                                state.target_temp_night(),
+                                                currentTime);
+
+            state.currentTargetHum = fadedTarget(state.start_fade_time_night(),
+                                                state.start_night_time(),
+                                                state.target_hum_day(),
+                                                state.target_hum_night(),
+                                                currentTime);
+        }
+        else if (!state.isDayTime)
         {
             Serial.println("NIGHT TIME");
             state.currentTargetTemp = state.target_temp_night();
@@ -157,6 +209,8 @@ namespace DuctFan
             state.currentTargetTemp = state.target_temp_day();
             state.currentTargetHum = state.target_hum_day();
         }
+
+
 
         state.currentMaxSpeed = !state.isLoudTime ? state.max_speed_quiet() : state.max_speed_loud();
 
@@ -171,6 +225,9 @@ namespace DuctFan
 
         state.isDayTime = !(currentTime > state.start_night_time() || currentTime < state.start_day_time());
         state.isLoudTime = !(currentTime > state.start_quiet_time() || currentTime < state.start_loud_time());
+
+        state.isFadeDayTime = currentTime >= state.start_fade_time_day() && currentTime < state.start_day_time();
+        state.isFadeNightTime = currentTime >= state.start_fade_time_night() && currentTime < state.start_night_time();
 
         Serial.println(currentTime);
 

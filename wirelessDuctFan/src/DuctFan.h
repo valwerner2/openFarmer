@@ -25,6 +25,7 @@ namespace DuctFan
         void init(AsyncWebServer& server);
         void update(int currentTime, unsigned long msInterval = 1000);
     private:
+        float fadedTarget(int startTime, int endTime, float startTarget, float endTarget, int currentTime);
         template<typename T>
         void addServerEndpoint(AsyncWebServer& server, const String& docName, void (State::*setter)(T));
         void loadSensorData();

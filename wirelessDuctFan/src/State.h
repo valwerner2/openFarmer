@@ -23,6 +23,8 @@ namespace DuctFan
         int currentMaxSpeed = 0;
         bool isDayTime = true;
         bool isLoudTime = true;
+        bool isFadeDayTime = true;
+        bool isFadeNightTime = true;
 
     private:
         MODE currentMode = MODE_SLAVE;
@@ -32,6 +34,8 @@ namespace DuctFan
         float targetHumNight = 0;
         int startNightTime = 0;
         int startDayTime = 0;
+        int startFadeTimeNight = 0;
+        int startFadeTimeDay = 0;
 
         int startQuietTime = 0;
         int startLoudTime = 0;
@@ -40,6 +44,14 @@ namespace DuctFan
         Preferences preferences;
 
     public:
+        int start_fade_time_night() const
+        {
+            return startFadeTimeNight;
+        }
+        int start_fade_time_day() const
+        {
+            return startFadeTimeDay;
+        }
         MODE current_mode() const
         {
             return currentMode;
@@ -84,7 +96,20 @@ namespace DuctFan
         {
             return maxSpeedQuiet;
         }
-
+        void set_start_fade_time_night(const int start_fade_time_night)
+        {
+            preferences.begin("ductFanState", false);
+            startFadeTimeNight = start_fade_time_night;
+            preferences.putInt("startFNight", startFadeTimeNight);
+            preferences.end();
+        }
+        void set_start_fade_time_day(const int start_fade_time_day)
+        {
+            preferences.begin("ductFanState", false);
+            startFadeTimeDay = start_fade_time_day;
+            preferences.putInt("startFDay", startFadeTimeDay);
+            preferences.end();
+        }
         void set_current_mode(const MODE current_mode)
         {
             preferences.begin("ductFanState", false);
