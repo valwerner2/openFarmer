@@ -38,8 +38,8 @@ struct DuctFanInfoBar: View {
                     Text(String(format: "%.02f", ductFanCurrent.info.currentHum))
                 } icon: {
                     HumidityIconView(
-                        current: ductFanCurrent.info.currentTemp,
-                        target: ductFanCurrent.info.currentTargetTemp
+                        current: ductFanCurrent.info.currentHum,
+                        target: ductFanCurrent.info.currentTargetHum
                     )
                 }
                 Spacer()
