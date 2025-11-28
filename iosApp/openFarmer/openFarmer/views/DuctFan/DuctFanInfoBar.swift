@@ -26,7 +26,11 @@ struct DuctFanInfoBar: View {
             }
             HStack{
                 Label {
-                    Text(String(format: "%.02f", ductFanCurrent.info.currentTemp))
+                    if(ductFanCurrent.info.currentMode == DuctFanMode.tempDown || ductFanCurrent.info.currentMode == DuctFanMode.tempUp){
+                        Text(String(format: "%.1f / %.1f", ductFanCurrent.info.currentTemp, ductFanCurrent.info.currentTargetTemp))
+                    }else{
+                        Text(String(format: "%.1f", ductFanCurrent.info.currentTemp))
+                    }
                 } icon: {
                     TemperatureIconView(
                         current: ductFanCurrent.info.currentTemp,
@@ -35,7 +39,11 @@ struct DuctFanInfoBar: View {
                 }
                 Spacer()
                 Label {
-                    Text(String(format: "%.02f", ductFanCurrent.info.currentHum))
+                    if(ductFanCurrent.info.currentMode == DuctFanMode.humDown || ductFanCurrent.info.currentMode == DuctFanMode.humUp){
+                        Text(String(format: "%.1f / %.1f", ductFanCurrent.info.currentHum, ductFanCurrent.info.currentTargetHum))
+                    }else{
+                        Text(String(format: "%.1f", ductFanCurrent.info.currentHum))
+                    }
                 } icon: {
                     HumidityIconView(
                         current: ductFanCurrent.info.currentHum,
@@ -45,7 +53,7 @@ struct DuctFanInfoBar: View {
                 Spacer()
                 Label(String(ductFanCurrent.info.currentSpeed) ,systemImage: "fan")
                 Spacer()
-                Image(systemName: ductFanCurrent.info.isDayTime ? "sun.max" : "moon.zzz")
+                Image(systemName: ductFanCurrent.info.isDayTime ? ductFanCurrent.info.isFadeNightTime ? "moon.haze" : "sun.max" : ductFanCurrent.info.isFadeDayTime ? "sun.haze" : "moon.zzz")
                     .foregroundStyle(.tint)
                 Spacer()
                 Image(systemName: ductFanCurrent.info.isLoudTime ? "speaker.wave.2" : "speaker.slash")

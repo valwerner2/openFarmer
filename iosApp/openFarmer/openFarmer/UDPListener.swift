@@ -53,10 +53,14 @@ struct DuctFan: Codable, Identifiable{
         var startDayTime: Int
         var startQuietTime: Int
         var startLoudTime: Int
+        var startFadeTimeNight: Int
+        var startFadeTimeDay: Int
         var maxSpeedLoud: Int
         var maxSpeedQuiet: Int
         var isDayTime: Bool
         var isLoudTime: Bool
+        var isFadeDayTime: Bool
+        var isFadeNightTime: Bool
     }
 }
 

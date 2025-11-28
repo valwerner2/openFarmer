@@ -13,7 +13,7 @@ extension Date {
     init(time: Int) {
         var components = DateComponents()
         components.hour = time / 100
-        components.minute = time - (time / 100) * 100
+        components.minute = time % 100
         
         // Use current calendar (or .gregorian if you prefer)
         if let date = Calendar.current.date(from: components) {

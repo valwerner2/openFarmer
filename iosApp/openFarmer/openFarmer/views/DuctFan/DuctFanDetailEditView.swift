@@ -40,14 +40,21 @@ struct DuctFanDetailEditView: View {
     @State var dateStartQuiet : Date
     @State var dateStartDay : Date
     @State var dateStartNight : Date
+    @State var dateStartDayFade : Date
+    @State var dateStartNightFade : Date
+    @State var fading: Bool
     
     init(ductFanCurrent: DuctFan, ductFanEdit: DuctFan) {
+        print("INIT EDIT")
         self.ductFanCurrent = ductFanCurrent
         self.ductFanEdit = ductFanEdit
         self.dateStartLoud = Date(time: ductFanEdit.info.startLoudTime)
         self.dateStartQuiet = Date(time: ductFanEdit.info.startQuietTime)
         self.dateStartDay = Date(time: ductFanEdit.info.startDayTime)
         self.dateStartNight = Date(time: ductFanEdit.info.startNightTime)
+        self.dateStartDayFade = Date(time: ductFanEdit.info.startFadeTimeDay)
+        self.dateStartNightFade = Date(time: ductFanEdit.info.startFadeTimeNight)
+        self.fading = ductFanEdit.info.startDayTime != ductFanEdit.info.startFadeTimeDay && ductFanEdit.info.startNightTime != ductFanEdit.info.startFadeTimeNight
     }
     
     var body: some View {
@@ -117,21 +124,69 @@ struct DuctFanDetailEditView: View {
                 }.padding(.bottom, paddingSection)
                 
                 VStack(alignment: .leading){
-                    Text("Day Time")
-                    HStack{
-                        Image(systemName: "sun.max")
-                            .foregroundStyle(.tint)
-                        DatePicker("Start",
-                                   selection: $dateStartDay,
-                                   displayedComponents: [.hourAndMinute]
-                        )
-                        
-                        Image(systemName: "moon.zzz")
-                            .foregroundStyle(.tint)
-                        DatePicker("End",
-                                   selection: $dateStartNight,
-                                   displayedComponents: [.hourAndMinute]
-                        )
+                    Toggle(
+                        "Fade Day/Night",
+                        systemImage: "sun.haze",
+                        isOn: $fading
+                    ).padding(.bottom, paddingSection)
+                    
+                    if(!fading)
+                    {
+                        VStack(alignment: .leading){
+                            Text("Day Time")
+                            HStack{
+                                Image(systemName: "sun.max")
+                                    .foregroundStyle(.tint)
+                                DatePicker("Start",
+                                           selection: $dateStartDay,
+                                           displayedComponents: [.hourAndMinute]
+                                )
+                                
+                                Image(systemName: "moon.zzz")
+                                    .foregroundStyle(.tint)
+                                DatePicker("End",
+                                           selection: $dateStartNight,
+                                           displayedComponents: [.hourAndMinute]
+                                )
+                            }
+                        }
+                    }
+                    else{
+                        VStack(alignment: .leading){
+                            Text("Day")
+                            HStack{
+                                Image(systemName: "sun.haze")
+                                    .foregroundStyle(.tint)
+                                DatePicker("Rise",
+                                           selection: $dateStartDayFade,
+                                           displayedComponents: [.hourAndMinute]
+                                )
+                                Image(systemName: "sun.max")
+                                    .foregroundStyle(.tint)
+                                DatePicker("Day",
+                                           selection: $dateStartDay,
+                                           displayedComponents: [.hourAndMinute]
+                                )
+                            }
+                        }.padding(.bottom, paddingSection)
+                        VStack(alignment: .leading){
+                            Text("Night")
+                            HStack{
+                                Image(systemName: "moon.haze")
+                                    .foregroundStyle(.tint)
+                                DatePicker("Rise",
+                                           selection: $dateStartNightFade,
+                                           displayedComponents: [.hourAndMinute]
+                                )
+                                Spacer()
+                                Image(systemName: "moon.zzz")
+                                    .foregroundStyle(.tint)
+                                DatePicker("Night",
+                                           selection: $dateStartNight,
+                                           displayedComponents: [.hourAndMinute]
+                                )
+                            }
+                        }
                     }
                 }
             }else{
@@ -152,6 +207,17 @@ struct DuctFanDetailEditView: View {
                 }
             }
             
+        }
+        .onChange(of: fading){_ , newValue in
+            if (newValue)
+            {
+                self.dateStartDayFade = Calendar.current.date(byAdding: .hour, value: -1, to: self.dateStartDay)!
+                self.dateStartNightFade = Calendar.current.date(byAdding: .hour, value: -1, to: self.dateStartNight)!
+            }else{
+                self.dateStartDayFade = Calendar.current.date(byAdding: .hour, value: 0, to: self.dateStartDay)!
+                self.dateStartNightFade = Calendar.current.date(byAdding: .hour, value: 0, to: self.dateStartNight)!
+            }
+                
         }
         .onAppear{
             ductFanEdit = ductFanCurrent
@@ -202,6 +268,12 @@ struct DuctFanDetailEditView: View {
             }
             if ductFanCurrent.info.startQuietTime != dateStartQuiet.toTimeInt(){
                 httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/startQuietTime", key: "startQuietTime", value: String(dateStartQuiet.toTimeInt()))
+            }
+            if ductFanCurrent.info.startFadeTimeDay != dateStartDayFade.toTimeInt(){
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/startFadeTimeDay", key: "startFadeTimeDay", value: String(dateStartDayFade.toTimeInt()))
+            }
+            if ductFanCurrent.info.startFadeTimeNight != dateStartNightFade.toTimeInt(){
+                httpClient.send(url: "http://" +  ductFanEdit.ip + "/ductFan/startFadeTimeNight", key: "startFadeTimeNight", value: String(dateStartNightFade.toTimeInt()))
             }
         }
     }

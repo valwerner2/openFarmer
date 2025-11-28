@@ -13,11 +13,12 @@ struct DuctFanDetailView: View {
     @State var ductFanCopy: DuctFan?
     
     @Environment(\.editMode) private var editMode
+    @State var showEditingView: Bool = false
     
     var body: some View {
         VStack(alignment: .leading){
             DuctFanInfoBar(ductFanCurrent: ductFan)
-            if editMode?.wrappedValue.isEditing == true {
+            if showEditingView {
                 if let ductFanToEdit = ductFanCopy{
                     DuctFanDetailEditView(ductFanCurrent: ductFan, ductFanEdit: ductFanToEdit)
                 }
@@ -25,6 +26,10 @@ struct DuctFanDetailView: View {
         }
         .onChange(of: editMode?.wrappedValue.isEditing) { _, isEditing in
             self.ductFanCopy = ductFan
+            self.showEditingView = isEditing == true
+        }
+        .onAppear{
+            self.showEditingView = editMode?.wrappedValue.isEditing ?? false
         }
     }
 }
