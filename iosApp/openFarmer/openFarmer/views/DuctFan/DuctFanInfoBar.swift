@@ -27,9 +27,9 @@ struct DuctFanInfoBar: View {
             HStack{
                 Label {
                     if(ductFanCurrent.info.currentMode == DuctFanMode.tempDown || ductFanCurrent.info.currentMode == DuctFanMode.tempUp){
-                        Text(String(format: "%.1f / %.1f", ductFanCurrent.info.currentTemp, ductFanCurrent.info.currentTargetTemp))
+                        Text(String(format: "%.02f / %.0f", ductFanCurrent.info.currentTemp, ductFanCurrent.info.currentTargetTemp))
                     }else{
-                        Text(String(format: "%.1f", ductFanCurrent.info.currentTemp))
+                        Text(String(format: "%.02f", ductFanCurrent.info.currentTemp))
                     }
                 } icon: {
                     TemperatureIconView(
@@ -40,9 +40,9 @@ struct DuctFanInfoBar: View {
                 Spacer()
                 Label {
                     if(ductFanCurrent.info.currentMode == DuctFanMode.humDown || ductFanCurrent.info.currentMode == DuctFanMode.humUp){
-                        Text(String(format: "%.1f / %.1f", ductFanCurrent.info.currentHum, ductFanCurrent.info.currentTargetHum))
+                        Text(String(format: "%.02f / %.0f", ductFanCurrent.info.currentHum, ductFanCurrent.info.currentTargetHum))
                     }else{
-                        Text(String(format: "%.1f", ductFanCurrent.info.currentHum))
+                        Text(String(format: "%.0f", ductFanCurrent.info.currentHum))
                     }
                 } icon: {
                     HumidityIconView(
